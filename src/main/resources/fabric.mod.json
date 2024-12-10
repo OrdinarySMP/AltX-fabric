@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "xdplayerlogger",
+	"version": "${version}",
+	"name": "Xadale Player Logger",
+	"description": "This mod creates a list of players with their ips",
+	"authors": [
+		"MrCookiePrincess! (Mostly chatgpt)"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/modid/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.example.playerlogger.PlayerLogger"
+		]
+	},
+	"mixins": [
+		"modid.mixins.json",
+		{
+			"config": "modid.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
