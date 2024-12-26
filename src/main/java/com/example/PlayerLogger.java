@@ -39,9 +39,23 @@ public class PlayerLogger implements ModInitializer {
         // Register the command
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(CommandManager.literal("alts")
-                    .requires(source -> source.hasPermissionLevel(4))
-                    .then(CommandManager.argument("query", StringArgumentType.string())
-                            .executes(this::handleAltsCommand))
+                .requires(source -> source.hasPermissionLevel(4)) // Permission check
+                .then(CommandManager.argument("query", StringArgumentType.string())
+                    .suggests((context, builder) -> {
+                        // Add player name suggestions
+                        for (ServerPlayerEntity player : context.getSource().getServer().getPlayerManager().getPlayerList()) {
+                            builder.suggest(player.getName().getString());
+                        }
+                        return builder.buildFuture();
+                    })
+                    .executes(this::handleAltsCommand))
+            );
+        });
+        // Register the command
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            dispatcher.register(CommandManager.literal("listIPs")
+                .requires(source -> source.hasPermissionLevel(4)) // Permission check
+                .executes(this::listIpsWithMultiplePlayers)
             );
         });
     }
@@ -121,6 +135,51 @@ public class PlayerLogger implements ModInitializer {
         }
 
         return 1;
+    };
+
+    private int listIpsWithMultiplePlayers(CommandContext<ServerCommandSource> context) {
+        Map<String, Set<String>> ipToPlayers = new HashMap<>();
+
+        // Load the IP-to-players map from the log file
+        try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(";");
+                if (parts.length == 2) {
+                    String playerName = parts[0].trim();
+                    String ipAddress = parts[1].trim();
+
+                    ipToPlayers.computeIfAbsent(ipAddress, k -> new HashSet<>()).add(playerName);
+                }
+            }
+        } catch (IOException e) {
+            context.getSource().sendError(Text.literal("§cFailed to read log file: " + e.getMessage()));
+            return 0;
+        }
+
+        // Filter and build the result
+        StringBuilder response = new StringBuilder("§bIPs with 2 or more users:\n");
+        boolean found = false;
+
+        for (Map.Entry<String, Set<String>> entry : ipToPlayers.entrySet()) {
+            if (entry.getValue().size() >= 2) {
+                found = true;
+                response.append("§bUsers joined on §3")
+                    .append(entry.getKey())
+                    .append("§b: §f")
+                    .append(String.join(", ", entry.getValue()))
+                    .append("\n");
+            }
+        }
+
+        if (!found) {
+            response.append("§cNo IPs with 2 or more players found.");
+        }
+
+        // Send the response
+        context.getSource().sendFeedback(() -> Text.literal(response.toString()), false);
+
+        return 1; // Indicate success
     }
 }
 
