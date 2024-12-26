@@ -38,7 +38,7 @@ public class PlayerLogger implements ModInitializer {
 
         // Register the command
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(CommandManager.literal("alts")
+            dispatcher.register(CommandManager.literal("listips")
                 .requires(source -> source.hasPermissionLevel(4)) // Permission check
                 .then(CommandManager.argument("query", StringArgumentType.string())
                     .suggests((context, builder) -> {
@@ -53,7 +53,7 @@ public class PlayerLogger implements ModInitializer {
         });
         // Register the command
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(CommandManager.literal("listIPs")
+            dispatcher.register(CommandManager.literal("alts")
                 .requires(source -> source.hasPermissionLevel(4)) // Permission check
                 .executes(this::listIpsWithMultiplePlayers)
             );
