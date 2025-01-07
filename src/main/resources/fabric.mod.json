@@ -5,7 +5,7 @@
 	"name": "Xadale Player Logger",
 	"description": "This mod creates a list of players with their ips",
 	"authors": [
-		"MrCookiePrincess! (Mostly chatgpt)"
+		"MrCookiePrincess"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
@@ -16,16 +16,9 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.example.playerlogger.PlayerLogger"
+			"com.xadale.playerlogger.PlayerLogger"
 		]
 	},
-	"mixins": [
-		"modid.mixins.json",
-		{
-			"config": "modid.client.mixins.json",
-			"environment": "client"
-		}
-	],
 	"depends": {
 		"fabricloader": ">=0.16.9",
 		"minecraft": "~1.21.4",
