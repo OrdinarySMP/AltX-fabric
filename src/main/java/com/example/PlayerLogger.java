@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -19,7 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class PlayerLogger implements ModInitializer {
-    private static final File logFile = new File("player_ips.txt");
+    // Define the log file path
+    private static final File logFile = new File(FabricLoader.getInstance().getGameDir().toFile(), "logs/player_ips.txt");
 
     @Override
     public void onInitialize() {
@@ -42,9 +44,12 @@ public class PlayerLogger implements ModInitializer {
                 .requires(source -> source.hasPermissionLevel(4)) // Permission check
                 .then(CommandManager.argument("query", StringArgumentType.string())
                     .suggests((context, builder) -> {
-                        // Add player name suggestions
+                        String partialQuery = builder.getRemaining(); // Get the current typed string
                         for (ServerPlayerEntity player : context.getSource().getServer().getPlayerManager().getPlayerList()) {
-                            builder.suggest(player.getName().getString());
+                            String playerName = player.getName().getString();
+                            if (playerName.toLowerCase().startsWith(partialQuery.toLowerCase())) {
+                                builder.suggest(playerName);
+                            }
                         }
                         return builder.buildFuture();
                     })
