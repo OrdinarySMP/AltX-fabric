@@ -1,0 +1,27 @@
+name: Modrinth Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Modrinth Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload to Modrinth
+        uses: cloudnode-pro/modrinth-publish@2.0.0
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project: ${{ secrets.MODRINTH_PROJECT_ID }}
+          name: ${{ github.event.release.name }}
+          version: ${{ github.event.release.tag_name }}
+          changelog: ${{ github.event.release.body }}
+          loaders: |-
+            fabric
+          game-versions: |-
+            1.21.4
+          files: target/AltX-fabric-${{ github.event.release.tag_name }}.jar

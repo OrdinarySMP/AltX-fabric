@@ -43,13 +43,13 @@ jobs:
       pull-requests: write
       id-token: write
     outputs:
-      version: ${{ steps.semantic-release.outputs.new_release_version }}
+      version: ${{ steps.semantic-release-dry.outputs.new_release_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
-        id: semantic-release
+        id: semantic-release-dry
         with:
           dry_run: true
         env:
@@ -109,10 +109,27 @@ jobs:
           }' > .releaserc
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
+        id: semantic-release
         with:
           extra_plugins: |
             @semantic-release/git
             @semantic-release/github
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+      - name: test
+        run: |
+          ls build/libs
+          echo build/libs/AltX-fabric-${{ steps.semantic-release.outputs.new_release_version }}.jar
+      - name: Upload to Modrinth
+        uses: cloudnode-pro/modrinth-publish@2.0.0
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project: ${{ secrets.MODRINTH_PROJECT_ID }}
+          name: v${{ steps.semantic-release.outputs.new_release_version }}
+          version: ${{ steps.semantic-release.outputs.new_release_version }}
+          changelog: ${{ steps.semantic-release.outputs.new_release_notes }}
+          loaders: |-
+            fabric
+          game-versions: |-
+            1.21.4
+          files: build/libs/AltX-fabric-${{ steps.semantic-release.outputs.new_release_version }}.jar
