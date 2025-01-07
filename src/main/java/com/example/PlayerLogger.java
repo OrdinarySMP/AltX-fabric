@@ -20,11 +20,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class PlayerLogger implements ModInitializer {
-    // Define the log file path
-    private static final File logFile = new File(FabricLoader.getInstance().getGameDir().toFile(), "logs/player_ips.txt");
+    private File logFile;
 
     @Override
     public void onInitialize() {
+        File logDir = new File("AltX-Files");
+        if (!logDir.exists()) {
+            logDir.mkdir();  // Creates the folder if it doesn't exist
+        }
+        this.logFile = new File(logDir, "player_ips.txt");
         // Register connection event to log player IPs
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             String playerName = handler.getPlayer().getName().getString();
