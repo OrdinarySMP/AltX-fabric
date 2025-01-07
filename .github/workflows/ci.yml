@@ -116,10 +116,6 @@ jobs:
             @semantic-release/github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-      - name: test
-        run: |
-          ls build/libs
-          echo build/libs/AltX-fabric-${{ steps.semantic-release.outputs.new_release_version }}.jar
       - name: Upload to Modrinth
         uses: cloudnode-pro/modrinth-publish@2.0.0
         with:
