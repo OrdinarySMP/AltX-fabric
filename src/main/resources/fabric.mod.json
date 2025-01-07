@@ -3,13 +3,13 @@
 	"id": "xdplayerlogger",
 	"version": "${version}",
 	"name": "Xadale Player Logger",
-	"description": "This mod creates a list of players with their ips",
+	"description": "A lightweight Fabric mod that logs IPs and detects alt accounts.",
 	"authors": [
 		"MrCookiePrincess"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/OrdinarySMP",
+		"sources": "https://github.com/OrdinarySMP/AltX-fabric"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/modid/icon.png",
