@@ -117,6 +117,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
       - name: Upload to Modrinth
+        if: steps.semantic-release.outputs.new_release_version != ''
         uses: cloudnode-pro/modrinth-publish@2.0.0
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
