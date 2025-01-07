@@ -1,23 +1,18 @@
-package com.example.playerlogger;
+package com.xadale.playerlogger;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PlayerLogger implements ModInitializer {
     private File logFile;
