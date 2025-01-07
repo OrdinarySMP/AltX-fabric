@@ -1,3 +1,8 @@
+_Disclaimer: Ethical IP Tracking_
+
+_This server mod logs player IP addresses to help identify alt accounts and maintain server integrity. Please use this mod responsibly and in compliance with privacy guidelines._
+
+
 # AltX
 AltX is a lightweight serverside mod for minecraft fabric that:
 
