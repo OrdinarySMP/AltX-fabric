@@ -20,8 +20,9 @@ Installation
     Restart the server.
 
 Commands
-| Command            | Description                                                 |
-|--------------------|-------------------------------------------------------------|
-| `/alts`            | Shows a list of IPs used by two or more players.            |
-| `/listips <player>`| Displays the player's IPs and any players sharing those IPs. |
-| `/listips <ip>`    | Shows all players using a specific IP.                      |
+| Permission | Command            | Description                                                 |
+|------------|--------------------|-------------------------------------------------------------|
+| `altx.command` | `/altx` | Shows a list of available Altx commands |
+| `altx.list` | `/altx list`       | Shows a list of players using the same IP address |
+| `altx.trace` | `/altx trace <player>`| Shows all players on given players IP address |
+| `altx.viewips` | - | Allows the player to see & search for IP addresses in `altx list` & `altx trace <ip>` |
