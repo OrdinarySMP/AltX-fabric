@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "xdplayerlogger",
+	"id": "altx",
 	"version": "${version}",
-	"name": "Xadale Player Logger",
-	"description": "A lightweight Fabric mod that logs IPs and detects alt accounts.",
+	"name": "AltX",
+	"description": "A lightweight Fabric mod that logs player IPs and detects alt accounts.",
 	"authors": [
 		"MrCookiePrincess"
 	],
