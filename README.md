@@ -19,10 +19,11 @@ Installation
     Drop it into your server's mods folder.
     Restart the server.
 
-Commands
+Commands/Permissions
 | Permission | Command            | Description                                                 |
 |------------|--------------------|-------------------------------------------------------------|
 | `altx.command` | `/altx` | Shows a list of available Altx commands |
 | `altx.list` | `/altx list`       | Shows a list of players using the same IP address |
 | `altx.trace` | `/altx trace <player>`| Shows all players on given players IP address |
 | `altx.viewips` | - | Allows the player to see & search for IP addresses in `altx list` & `altx trace <ip>` |
+| `altx.notify` | - | Notifies players when a new player joins using an IP address that is already in the database |
