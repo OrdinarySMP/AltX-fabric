@@ -10,11 +10,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 public class HandleAltsCommand {
+
+  private static final Pattern ipPattern = Pattern.compile("^(\\d{1,3}\\.){3}\\d{1,3}$");
+
   public static int execute(CommandContext<ServerCommandSource> context, File logFile) {
     String query = StringArgumentType.getString(context, "query").trim();
     Map<String, Set<String>> ipToPlayers = new HashMap<>();
@@ -38,7 +44,8 @@ public class HandleAltsCommand {
       return 1;
     }
 
-    if (query.contains(".")) {
+    Matcher m = ipPattern.matcher(query);
+    if (m.matches()) {
       // Query is an IP address
       Set<String> players = ipToPlayers.get(query);
       if (players != null) {
