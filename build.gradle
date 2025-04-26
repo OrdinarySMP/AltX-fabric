@@ -1,6 +1,7 @@
 plugins {
-	id 'fabric-loom' version '1.10.1'
+	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version "8+"
 }
 
 group = project.maven_group
@@ -9,7 +10,24 @@ base {
 	archivesName = project.archives_base_name
 }
 
+configurations {
+    embed
+    compileOnly.extendsFrom(embed)
+}
+
+shadowJar {
+    configurations = [project.configurations.embed]
+    exclude('META-INF/services/**')
+    relocate "com.moandjiezana", "dcshadow.com.moandjiezana"
+}
+
 repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://repo.opencollab.dev/main/")
+    }
+    maven { url 'https://jitpack.io' }
+
 	// Add repositories to retrieve artifacts from in here.
 	// You should only use this when depending on other mods because
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
@@ -21,7 +39,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"modid" {
+		"altx" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
@@ -35,11 +53,22 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	
+
     include(modImplementation('me.lucko:fabric-permissions-api:0.3.3'))
+
+    // config
+    embed implementation("de.erdbeerbaerlp:toml4j:dd60f51")
+
+    // floodgate integration
+    compileOnly('org.geysermc.floodgate:api:2.2.4-SNAPSHOT')
+
+    // justsync integration
+    compileOnly('com.github.OrdinarySMP:DiscordJustSync:master-SNAPSHOT')
+
 }
+
+tasks.build.dependsOn(tasks.shadowJar)
 
 processResources {
 	inputs.property "version", project.version
@@ -63,11 +92,25 @@ java {
 	targetCompatibility = JavaVersion.VERSION_21
 }
 
+remapJar {
+    // wait until the shadowJar is done
+    dependsOn(shadowJar)
+    mustRunAfter(shadowJar)
+    // Set the input jar for the task. Here use the shadow Jar that include the .class of the transitive dependency
+    inputFile = file(shadowJar.archiveFile)
+}
+
+
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.base.archivesName.get()}"}
 	}
 }
+
+artifacts {
+    archives tasks.shadowJar
+}
+
 
 // configure the maven publication
 publishing {

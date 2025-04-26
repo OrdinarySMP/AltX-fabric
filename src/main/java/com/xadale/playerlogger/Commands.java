@@ -12,12 +12,6 @@ import net.minecraft.text.Text;
 
 public class Commands {
 
-  private final PlayerLogger altx;
-
-  public Commands(PlayerLogger altx) {
-    this.altx = altx;
-  }
-
   public void register() {
     // Register the command
     CommandRegistrationCallback.EVENT.register(
@@ -42,7 +36,9 @@ public class Commands {
 
                         if (Permissions.check(source, "altx.trace", 4)) {
                           help.append(
-                              "\n§b/altx trace <player> §fShows all players on given players IP address");
+                              "\n"
+                                  + "§b/altx trace <player> §fShows all players on given players IP"
+                                  + " address");
 
                           if (Permissions.check(source, "altx.viewips", 4)) {
                             help.append(
@@ -85,7 +81,8 @@ public class Commands {
                                   .executes(
                                       (context) ->
                                           HandleAltsCommand.execute(
-                                              context, this.altx.getLogFile()))))
+                                              context,
+                                              PlayerLogger.getInstance().getIpAssRepository()))))
 
                   // Command list
                   .then(
@@ -94,7 +91,7 @@ public class Commands {
                           .executes(
                               (context) ->
                                   ListIpsWithMultiplePlayers.execute(
-                                      context, this.altx.getLogFile()))));
+                                      context, PlayerLogger.getInstance().getIpAssRepository()))));
         });
   }
 }

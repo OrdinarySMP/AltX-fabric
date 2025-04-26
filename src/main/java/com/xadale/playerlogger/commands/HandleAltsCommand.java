@@ -1,39 +1,32 @@
 package com.xadale.playerlogger.commands;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import com.xadale.playerlogger.PlayerLogger;
+import com.xadale.playerlogger.Utils;
+import com.xadale.playerlogger.data.IpAss;
+import com.xadale.playerlogger.repositories.IpAssRepository;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.util.stream.Collectors;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class HandleAltsCommand {
 
   private static final Pattern ipPattern = Pattern.compile("^(\\d{1,3}\\.){3}\\d{1,3}$");
 
-  public static int execute(CommandContext<ServerCommandSource> context, File logFile) {
+  public static int execute(
+      CommandContext<ServerCommandSource> context, IpAssRepository ipAssDataRepository) {
     String query = StringArgumentType.getString(context, "query").trim();
-    Map<String, Set<String>> ipToPlayers = new HashMap<>();
-    Map<String, Set<String>> playerToIps = new HashMap<>();
 
     final ServerCommandSource source = context.getSource();
-
-    try {
-      HandleAltsCommand.readLogFile(ipToPlayers, playerToIps, logFile);
-    } catch (IOException e) {
-      context.getSource().sendError(Text.literal("§cFailed to read log file: " + e.getMessage()));
-      return 0;
-    }
 
     if ((query.contains(".") && !Permissions.check(source, "altx.viewips", 4))) {
       context
@@ -47,8 +40,10 @@ public class HandleAltsCommand {
     Matcher m = ipPattern.matcher(query);
     if (m.matches()) {
       // Query is an IP address
-      Set<String> players = ipToPlayers.get(query);
-      if (players != null) {
+      Optional<IpAss> ipAss = ipAssDataRepository.get(query);
+      if (ipAss.isPresent()) {
+        Set<String> players =
+            ipAss.get().getUuids().stream().map(Utils::getPlayerName).collect(Collectors.toSet());
         context
             .getSource()
             .sendFeedback(
@@ -65,8 +60,23 @@ public class HandleAltsCommand {
     }
 
     // Query is a username
-    Set<String> ips = playerToIps.get(query);
-    if (ips != null) {
+    ServerPlayerEntity player =
+        PlayerLogger.getInstance().getServer().getPlayerManager().getPlayer(query);
+    UUID uuid = null;
+    if (player == null) {
+      GameProfile profile = Utils.fetchProfile(query);
+      if (profile != null) {
+        uuid = profile.getId();
+      }
+    } else {
+      uuid = player.getUuid();
+    }
+    if (uuid == null) {
+      context.getSource().sendFeedback(() -> Text.literal("§cPlayer not found: " + query), false);
+      return 1;
+    }
+    Set<String> ips = Utils.getIpsOfUuid(ipAssDataRepository, uuid);
+    if (!ips.isEmpty()) {
       StringBuilder response = new StringBuilder();
       if (Permissions.check(source, "altx.viewips", 4)) {
         response
@@ -78,7 +88,10 @@ public class HandleAltsCommand {
         response.append("§bPlayers with the same IP as §3").append(query).append("§b:");
       }
       for (String ip : ips) {
-        Set<String> players = ipToPlayers.get(ip);
+        Set<String> players =
+            ipAssDataRepository.get(ip).get().getUuids().stream()
+                .map(Utils::getPlayerName)
+                .collect(Collectors.toSet());
 
         response.append("\n");
         if (Permissions.check(source, "altx.viewips", 4)) {
@@ -95,26 +108,5 @@ public class HandleAltsCommand {
           .sendFeedback(() -> Text.literal("§cNo IPs found for player: " + query), false);
     }
     return 1;
-  }
-
-  private static void readLogFile(
-      Map<String, Set<String>> ipToPlayers, Map<String, Set<String>> playerToIps, File logFile)
-      throws IOException {
-    BufferedReader reader = new BufferedReader(new FileReader(logFile));
-
-    String line;
-    while ((line = reader.readLine()) != null) {
-      String[] parts = line.split(";");
-      if (parts.length == 2) {
-        String playerName = parts[0].trim();
-        String ipAddress = parts[1].trim();
-
-        ipToPlayers.computeIfAbsent(ipAddress, k -> new HashSet<>()).add(playerName);
-
-        playerToIps.computeIfAbsent(playerName, k -> new HashSet<>()).add(ipAddress);
-      }
-    }
-
-    reader.close();
   }
 }
