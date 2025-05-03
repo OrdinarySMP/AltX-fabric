@@ -1,5 +1,6 @@
 package com.xadale.playerlogger;
 
+import com.mojang.logging.LogUtils;
 import com.xadale.playerlogger.compat.FloodgateIntegration;
 import com.xadale.playerlogger.config.Config;
 import com.xadale.playerlogger.repositories.IpAssRepository;
@@ -57,6 +58,13 @@ public class PlayerLogger implements ModInitializer {
 
     Commands commands = new Commands();
     commands.register();
+  }
+
+  public void reloadConfig() {
+    LogUtils.getLogger().info("Reloading Config");
+    Config config = Config.loadConfig();
+    this.config = config;
+    LogUtils.getLogger().info("Config succesfully reloaded");
   }
 
   public static Path getConfigFolder() {

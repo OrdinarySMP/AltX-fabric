@@ -91,7 +91,15 @@ public class Commands {
                           .executes(
                               (context) ->
                                   ListIpsWithMultiplePlayers.execute(
-                                      context, PlayerLogger.getInstance().getIpAssRepository()))));
+                                      context, PlayerLogger.getInstance().getIpAssRepository())))
+                  .then(
+                      CommandManager.literal("reload")
+                          .requires(Permissions.require("altx.reload", 4))
+                          .executes(
+                              (context) -> {
+                                PlayerLogger.getInstance().reloadConfig();
+                                return 1;
+                              })));
         });
   }
 }
