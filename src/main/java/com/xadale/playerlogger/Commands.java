@@ -1,8 +1,13 @@
 package com.xadale.playerlogger;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.xadale.playerlogger.commands.AuthorizeAltsCommand;
 import com.xadale.playerlogger.commands.HandleAltsCommand;
 import com.xadale.playerlogger.commands.ListIpsWithMultiplePlayers;
+import java.util.concurrent.CompletableFuture;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
@@ -59,25 +64,7 @@ public class Commands {
                           .requires(Permissions.require("altx.trace", 4))
                           .then(
                               CommandManager.argument("query", StringArgumentType.string())
-                                  .suggests(
-                                      (context, builder) -> {
-                                        String partialQuery =
-                                            builder.getRemaining(); // Get the current typed string
-                                        for (ServerPlayerEntity player :
-                                            context
-                                                .getSource()
-                                                .getServer()
-                                                .getPlayerManager()
-                                                .getPlayerList()) {
-                                          String playerName = player.getName().getString();
-                                          if (playerName
-                                              .toLowerCase()
-                                              .startsWith(partialQuery.toLowerCase())) {
-                                            builder.suggest(playerName);
-                                          }
-                                        }
-                                        return builder.buildFuture();
-                                      })
+                                  .suggests((context, builder) -> extracted(context, builder))
                                   .executes(
                                       (context) ->
                                           HandleAltsCommand.execute(
@@ -99,7 +86,31 @@ public class Commands {
                               (context) -> {
                                 PlayerLogger.getInstance().reloadConfig();
                                 return 1;
-                              })));
+                              }))
+                  .then(
+                      CommandManager.literal("authorize")
+                          .requires(Permissions.require("altx.authorize", 4))
+                          .then(
+                              CommandManager.argument("player1", StringArgumentType.string())
+                                  .suggests(this::extracted)
+                                  .then(
+                                      CommandManager.argument(
+                                              "player2", StringArgumentType.string())
+                                          .suggests(this::extracted)
+                                          .executes(AuthorizeAltsCommand::execute)))));
         });
+  }
+
+  private CompletableFuture<Suggestions> extracted(
+      CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+    String partialQuery = builder.getRemaining(); // Get the current typed string
+    for (ServerPlayerEntity player :
+        context.getSource().getServer().getPlayerManager().getPlayerList()) {
+      String playerName = player.getName().getString();
+      if (playerName.toLowerCase().startsWith(partialQuery.toLowerCase())) {
+        builder.suggest(playerName);
+      }
+    }
+    return builder.buildFuture();
   }
 }

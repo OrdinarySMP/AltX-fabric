@@ -8,10 +8,10 @@ import java.util.UUID;
 public class IpLogger {
 
   public static void handleJoin(String ip, UUID uuid) {
-    IpAssRepository ipAssdataRepository = PlayerLogger.getInstance().getIpAssRepository();
-    Optional<IpAss> ipAss = ipAssdataRepository.get(ip);
+    IpAssRepository ipAssDataRepository = PlayerLogger.getInstance().getIpAssRepository();
+    Optional<IpAss> ipAss = ipAssDataRepository.get(ip);
     if (ipAss.isEmpty()) {
-      ipAssdataRepository.add(new IpAss(ip, uuid));
+      ipAssDataRepository.add(new IpAss(ip, uuid));
       return;
     }
     ipAss.get().addUUid(uuid);

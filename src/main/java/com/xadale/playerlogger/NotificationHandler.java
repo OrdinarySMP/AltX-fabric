@@ -1,14 +1,17 @@
 package com.xadale.playerlogger;
 
 import com.xadale.playerlogger.compat.JustSyncIntegration;
+import com.xadale.playerlogger.data.AuthorizedAccounts;
 import com.xadale.playerlogger.data.IpAss;
 import com.xadale.playerlogger.data.LastReadNotif;
 import com.xadale.playerlogger.data.Notif;
+import com.xadale.playerlogger.repositories.AuthorizedAccountsRepository;
 import com.xadale.playerlogger.repositories.NotifRepository;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,8 +31,21 @@ public class NotificationHandler {
     }
     List<UUID> uuids = ipAss.getUuids();
     List<UUID> linkedUuids = JustSyncIntegration.getIntegration().getRelatedUuids(uuid);
-    // TODO: filter authorized accounts
-    List<UUID> filteredUuids = uuids.stream().filter(u -> !linkedUuids.contains(u)).toList();
+
+    AuthorizedAccountsRepository authAltsRepo =
+        PlayerLogger.getInstance().getAuthorizedAccountsRepository();
+    Optional<AuthorizedAccounts> authorizedAccountsOptional = authAltsRepo.get(uuid);
+    List<UUID> filteredUuids = new ArrayList<>();
+    if (authorizedAccountsOptional.isEmpty()) {
+      filteredUuids = uuids.stream().filter(u -> !linkedUuids.contains(u)).toList();
+    } else {
+      List<UUID> authorizedAccounts = authorizedAccountsOptional.get().getUuids();
+      filteredUuids =
+          uuids.stream()
+              .filter(u -> !linkedUuids.contains(u))
+              .filter(u -> !authorizedAccounts.contains(u))
+              .toList();
+    }
     if (filteredUuids.isEmpty()) {
       return;
     }
@@ -46,20 +62,19 @@ public class NotificationHandler {
                 PlayerLogger.getInstance()
                     .getLastReadNotifRepository()
                     .get(player.getUuid())
+                    // TODO: CHANGEEEEE
                     .get()
                     .setLastNotifId(getLastNotifId() + 1);
                 ;
               }
             });
-    // File log =
-    //     PlayerLogger.getConfigFolder().resolve(PlayerLogger.modId +
-    // ".notifications.log").toFile();
-    String my_file_name =
+
+    String notificationLog =
         PlayerLogger.getConfigFolder()
             .resolve(PlayerLogger.modId + ".notifications.log")
             .toString();
-    try (BufferedWriter output = new BufferedWriter(new FileWriter(my_file_name, true))) {
-      output.append(LocalDateTime.now().toString() + ' ');
+    try (BufferedWriter output = new BufferedWriter(new FileWriter(notificationLog, true))) {
+      output.append(LocalDateTime.now().toString()).append(String.valueOf(' '));
       output.append(message);
       output.newLine();
     } catch (IOException ignored) {

@@ -3,33 +3,51 @@ package com.xadale.playerlogger;
 import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.yggdrasil.ProfileResult;
-import com.xadale.playerlogger.core.DataRepository;
 import com.xadale.playerlogger.data.IpAss;
 import com.xadale.playerlogger.repositories.IpAssRepository;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class Utils {
 
   private static final Gson gson = new Gson();
+  private static final Map<UUID, String> uuidNameCache = new ConcurrentHashMap<>();
 
   public static String getPlayerName(UUID uuid) {
     if (PlayerLogger.getInstance().getFloodgateIntegration().isBedrock(uuid)) {
       return PlayerLogger.getInstance().getFloodgateIntegration().getUsername(uuid);
     }
+
+    MinecraftServer server = PlayerLogger.getInstance().getServer();
+    ServerPlayerEntity player = server.getPlayerManager().getPlayer(uuid);
+    if (player != null) {
+      String name = player.getGameProfile().getName();
+      uuidNameCache.put(uuid, name);
+      return name;
+    }
+
+    String cachedName = uuidNameCache.get(uuid);
+    if (cachedName != null) {
+      return cachedName;
+    }
+
     ProfileResult result =
         PlayerLogger.getInstance().getServer().getSessionService().fetchProfile(uuid, false);
     if (result == null) {
       return "unknown";
     }
+    uuidNameCache.put(uuid, result.profile().getName());
     return result.profile().getName();
   }
 

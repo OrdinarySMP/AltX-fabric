@@ -18,6 +18,7 @@ public class JustSyncIntegration {
 
   /** Initializes integration if Discord: JustSync is loaded and enabled in config. */
   private JustSyncIntegration() {
+    // TODO: change
     if (FabricLoader.getInstance().isModLoaded("discordjustsync")
         && PlayerLogger.getInstance().getConfig().discordJustSyncIntegration.enable) {
       if (JustSyncApplication.getInstance() != null) {
@@ -38,6 +39,16 @@ public class JustSyncIntegration {
     return JustSyncIntegration.instance;
   }
 
+  public PlayerLinkStub getPlayerLink(UUID uuid) {
+    if (this.integration != null && this.integration.getConfig().linking.enableLinking) {
+      Optional<PlayerLink> playerLink = this.integration.getLinkManager().getDataOf(uuid);
+      if (playerLink.isPresent()) {
+        return new PlayerLinkStub(playerLink.get());
+      }
+    }
+    return new PlayerLinkStub(uuid);
+  }
+
   /**
    * @param uuid Player UUID to check
    * @return List of all related UUIDs (main + alts) from JustSync's linking system
@@ -49,9 +60,7 @@ public class JustSyncIntegration {
         // TODO: once implemented change to:
         //  return playerLink.get().getAllUuids();
         List<UUID> uuids =
-            playerLink.get().getAlts().stream()
-                .map(PlayerData::getId)
-                .collect(Collectors.toList());
+            playerLink.get().getAlts().stream().map(PlayerData::getId).collect(Collectors.toList());
         uuids.add(playerLink.get().getPlayerId());
         return uuids;
       }

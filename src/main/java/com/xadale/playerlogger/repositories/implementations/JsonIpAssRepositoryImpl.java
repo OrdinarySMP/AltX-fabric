@@ -1,4 +1,4 @@
-package com.xadale.playerlogger.repositories;
+package com.xadale.playerlogger.repositories.implementations;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import com.xadale.playerlogger.data.IpAss;
+import com.xadale.playerlogger.repositories.IpAssRepository;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;

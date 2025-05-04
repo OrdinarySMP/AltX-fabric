@@ -1,4 +1,4 @@
-package com.xadale.playerlogger.repositories;
+package com.xadale.playerlogger.repositories.implementations;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import com.xadale.playerlogger.core.LocalDateTimeAdapter;
 import com.xadale.playerlogger.data.Notif;
+import com.xadale.playerlogger.repositories.NotifRepository;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;

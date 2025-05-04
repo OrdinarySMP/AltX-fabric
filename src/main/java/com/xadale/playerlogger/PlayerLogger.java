@@ -3,12 +3,14 @@ package com.xadale.playerlogger;
 import com.mojang.logging.LogUtils;
 import com.xadale.playerlogger.compat.FloodgateIntegration;
 import com.xadale.playerlogger.config.Config;
+import com.xadale.playerlogger.repositories.AuthorizedAccountsRepository;
 import com.xadale.playerlogger.repositories.IpAssRepository;
-import com.xadale.playerlogger.repositories.JsonIpAssRepositoryImpl;
-import com.xadale.playerlogger.repositories.JsonLastReadNotifRepositoryImpl;
-import com.xadale.playerlogger.repositories.JsonNotifRepositoryImpl;
 import com.xadale.playerlogger.repositories.LastReadNotifRepository;
 import com.xadale.playerlogger.repositories.NotifRepository;
+import com.xadale.playerlogger.repositories.implementations.JsonAuthorizedAccountsRepositoryImpl;
+import com.xadale.playerlogger.repositories.implementations.JsonIpAssRepositoryImpl;
+import com.xadale.playerlogger.repositories.implementations.JsonLastReadNotifRepositoryImpl;
+import com.xadale.playerlogger.repositories.implementations.JsonNotifRepositoryImpl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +30,7 @@ public class PlayerLogger implements ModInitializer {
   private IpAssRepository ipAssDataRepository;
   private NotifRepository notifRepository;
   private LastReadNotifRepository lastReadNotifRepository;
+  private AuthorizedAccountsRepository authorizedAccountsRepository;
   private Config config = Config.loadConfig();
 
   @Override
@@ -43,14 +46,21 @@ public class PlayerLogger implements ModInitializer {
         PlayerLogger.getConfigFolder().resolve(PlayerLogger.modId + ".notifs.json").toFile();
     File lastReadNotifFile =
         PlayerLogger.getConfigFolder().resolve(PlayerLogger.modId + ".lastReadNotif.json").toFile();
+    File authorizedAccountsFile =
+        PlayerLogger.getConfigFolder()
+            .resolve(PlayerLogger.modId + ".authorizedAccounts.json")
+            .toFile();
 
     try {
       Files.createDirectories(PlayerLogger.getConfigFolder());
     } catch (IOException ignored) {
     }
+
     this.ipAssDataRepository = JsonIpAssRepositoryImpl.from(ipAssFile);
     this.notifRepository = JsonNotifRepositoryImpl.from(notifFile);
     this.lastReadNotifRepository = JsonLastReadNotifRepositoryImpl.from(lastReadNotifFile);
+    this.authorizedAccountsRepository =
+        JsonAuthorizedAccountsRepositoryImpl.from(authorizedAccountsFile);
 
     ServerPlayConnectionEvents.JOIN.register(NotificationHandler::onJoin);
 
@@ -62,8 +72,7 @@ public class PlayerLogger implements ModInitializer {
 
   public void reloadConfig() {
     LogUtils.getLogger().info("Reloading Config");
-    Config config = Config.loadConfig();
-    this.config = config;
+    this.config = Config.loadConfig();
     LogUtils.getLogger().info("Config succesfully reloaded");
   }
 
@@ -93,6 +102,10 @@ public class PlayerLogger implements ModInitializer {
 
   public LastReadNotifRepository getLastReadNotifRepository() {
     return this.lastReadNotifRepository;
+  }
+
+  public AuthorizedAccountsRepository getAuthorizedAccountsRepository() {
+    return this.authorizedAccountsRepository;
   }
 
   public Config getConfig() {
