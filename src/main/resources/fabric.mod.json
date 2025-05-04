@@ -19,6 +19,9 @@
 			"com.xadale.playerlogger.PlayerLogger"
 		]
 	},
+  "mixins": [
+    "altx.mixins.json"
+  ],
 	"depends": {
 		"fabricloader": ">=0.16.9",
 		"minecraft": "~1.21.4",

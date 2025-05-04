@@ -1,0 +1,68 @@
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+max_line_length = 80
+tab_width = 2
+
+[.gitignore]
+max_line_length = unset
+
+[*.md]
+max_line_length = unset
+
+[*.feature]
+tab_width = 4
+
+[*.gsp]
+indent_size = 4
+tab_width = 4
+
+[*.haml]
+tab_width = 4
+
+[*.less]
+tab_width = 4
+
+[*.styl]
+tab_width = 4
+
+[.editorconfig]
+max_line_length = unset
+
+[{*.as,*.js2,*.es}]
+indent_size = 4
+tab_width = 4
+
+[{*.cfml,*.cfm,*.cfc}]
+indent_size = 4
+tab_width = 4
+
+[{*.cjs,*.js}]
+max_line_length = 80
+
+[{*.gradle,*.groovy,*.gant,*.gdsl,*.gy,*.gson}]
+indent_size = 4
+tab_width = 4
+
+[{*.jspx,*.tagx}]
+indent_size = 4
+tab_width = 4
+
+[{*.kts,*.kt}]
+indent_size = 4
+tab_width = 4
+
+[{*.vsl,*.vm,*.ft}]
+indent_size = 4
+tab_width = 4
+
+[{*.xjsp,*.tag,*.jsf,*.jsp,*.jspf,*.tagf}]
+indent_size = 4
+tab_width = 4
+
+[{*.yml,*.yaml}]
+tab_width = 4
+
